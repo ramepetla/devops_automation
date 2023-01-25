@@ -1,0 +1,17 @@
+---
+
+# Testing the extraction of forti-api-token from the credential type
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+
+    - name: Print Hello Message
+      debug:
+        msg: "Hello from Ansible!"
+
+    - name: Printing Values from EXTRA VARIABLES
+      debug:
+        msg: "GIVEN API TOKEN: {{ fortinet_api_token }}"

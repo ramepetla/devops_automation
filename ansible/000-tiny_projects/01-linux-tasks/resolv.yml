@@ -1,0 +1,54 @@
+---
+
+- hosts: all
+  become: yes
+  gather_facts: yes
+  
+  tasks:
+
+  - name: Releasing Lock on RESOLV.CONF File
+    shell:
+      chattr -i /etc/resolv.conf
+    when:
+      ansible_distribution == "RedHat"
+
+  - name: Confgiure RESOLV.CONF
+    copy:
+      src: files/resolv.conf
+      dest: /etc/resolv.conf
+      owner: root
+      group: root
+      mode: 0644
+      force: yes
+
+
+  - name: Hardcoding DNS Server IPs
+    lineinfile:
+      path: /etc/sysconfig/network/config
+      regexp: '^(.*)NETCONFIG_DNS_STATIC_SERVERS(.*)$'
+      line: 'NETCONFIG_DNS_STATIC_SERVERS="192.168.1.4 192.168.1.5"'
+      backup: yes
+    when:
+      ansible_distribution == "SLES_SAP"
+  
+  - name: Pull Latest DNS Static Entries from CONFIG file
+    shell:
+      netconfig update -f
+    when:
+      ansible_distribution == "SLES_SAP"
+
+
+
+  - name: Keeping Lock on RESOLV.CONF File
+    shell:
+      chattr +i /etc/resolv.conf
+    when:
+      ansible_distribution == "RedHat"
+
+  - name: Validation
+    shell: cat /etc/resolv.conf | wc -l
+    register: nameserver_details
+
+  - name: Print Validation
+    debug:
+      msg: "Nameserver Validation: {{ nameserver_details.stdout }}"

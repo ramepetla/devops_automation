@@ -1,0 +1,2 @@
+extra_vars:
+  forti_api_token: '{{ forti_api_token }}'

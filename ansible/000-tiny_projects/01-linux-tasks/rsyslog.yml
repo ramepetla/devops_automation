@@ -1,0 +1,39 @@
+# Copy rsyslog.conf to Servers and Restart Service
+
+---
+
+- hosts: apacheservers
+  become: yes
+  gather_facts: no
+  
+  tasks:
+
+  - name: Copy rsyslog.conf to Servers
+    copy:
+      src: files/rsyslog.conf
+      dest: /etc/rsyslog.conf
+      owner: root
+      group: root
+      mode: 0600
+      force: yes
+
+  - name: Restart rsyslog Service
+    systemd:
+      name: rsyslog
+      state: restarted
+      enabled: yes
+
+- hosts: apacheservers
+  become: yes
+  gather_facts: no
+
+  tasks:
+
+    - name: Check rsyslog.conf
+      shell: cat /etc/rsyslog.conf | grep 154
+      register: rsyslog_conf
+
+
+    - name: Print rsyslog_conf
+      debug:
+        msg: "rsyslog_conf: {{ rsyslog_conf.stdout }}"

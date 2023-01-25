@@ -1,0 +1,6 @@
+Server Name, Date, Update ID, KB ID, Update Title, Insalled
+{% for server in server_list %}
+   {% for update_item in dict_updates %}
+   {{server}}, {{ patch_installation_date_time }}, {{update_item.value.id}}, {{update_item.value.kb}}, {{update_item.value.title}}, {{update_item.value.installed}}
+   {% endfor %}  
+{% endfor %}

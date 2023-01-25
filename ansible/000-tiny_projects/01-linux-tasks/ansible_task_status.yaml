@@ -1,0 +1,28 @@
+---
+
+- hosts: all
+  become: true
+
+  tasks:
+
+    # Check SSH Service Status and Debug Task Status
+
+    - name: Check SSH Service Status
+      service:
+        name: sshe
+        state: started
+      register: ssh_service_status
+      ignore_errors: yes
+
+    - debug:
+        var: ssh_service_status.msg
+
+    - name: Restart the SSH Service
+      service:
+        name: sshd
+        state: restarted
+      register: ssh_service_restart_status
+
+    - debug:
+        var: ssh_service_restart_status.msg
+  

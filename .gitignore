@@ -131,9 +131,10 @@ dmypy.json
 # Exclude Root Folders
 docker
 
+# Exclude Ansible Folders
 ansible/000-ansible-collections-modules-info.txt
 ansible/000-configs
-ansible/000-tiny_projects
+#ansible/000-tiny_projects
 ansible/000-hands-on
 ansible/001-ansible-os-hardening-linux
 ansible/002-infoblox-fortigate
@@ -142,3 +143,24 @@ ansible/004-ansible-os-patching-windows
 ansible/005-aap-execution-env
 ansible/007-pfsense
 ansible/008-ansible-python
+ansible/009*
+ansible/01*
+ansible/02*
+ansible/03*
+ansible/04*
+ansible/05*
+ansible/06*
+ansible/07*
+ansible/08*
+ansible/09*
+ansible/10*
+
+
+# Confidentail Data Sanitization Pending
+ansible/000-tiny_projects/04-reading-dictionary
+
+
+# Exclude Files
+ansible/000-tiny_projects/01-linux-tasks/mdatp_syslog_qualys.yml
+ansible/000-tiny_projects/01-linux-tasks/proxy.yml
+

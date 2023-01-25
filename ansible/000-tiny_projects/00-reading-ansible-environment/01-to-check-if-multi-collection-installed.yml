@@ -1,0 +1,16 @@
+---
+
+# Print the list of installed collections
+
+- hosts: localhost
+  gather_facts: no
+
+  tasks:
+
+  - name: Check Version of Multiple Collections
+    ansible.builtin.debug:
+      msg: "Installed Version: {{ lookup('community.general.collection_version', '{{ item }}' ) }}"
+    loop:
+      - fortinet.fortios
+      - pfsensible.core
+      - community.general

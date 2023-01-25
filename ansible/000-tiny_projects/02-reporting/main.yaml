@@ -1,0 +1,102 @@
+# Playbook to Convert DICTIONARY to CSV using JINJA Template
+
+---
+
+- name: Converting CSV to EXCEL
+  hosts: localhost
+  gather_facts: true
+
+  vars:
+    datetimestr: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
+    report_location: '/tmp/reports'
+    temp_location: '/tmp'
+    reboot_after_patching: true
+    final_report: '/tmp/final_report.xlsx'
+
+  tasks:
+
+    - name: Create temporary file for Patching Report      # Windows Patching Info Report
+      ansible.builtin.tempfile:
+        state: file
+        prefix: "patching_report_{{ datetimestr }}_"
+        suffix: ".csv"
+        path: "{{ temp_location }}"
+      run_once: true
+      delegate_to: localhost
+      become: false
+      register: temp_patching_report_location
+
+    - name: Create temporary file for Windows Services Report     # Windows Services Info Report
+      ansible.builtin.tempfile:
+        state: file
+        prefix: "windows_services_report_{{ datetimestr }}_"
+        suffix: ".csv"
+        path: "{{ temp_location }}"
+      run_once: true
+      delegate_to: localhost
+      become: false
+      register: temp_windows_services_report_location
+
+
+    - name: Sample Dictionary for Windows Update Patches
+      set_fact:
+        dict_updates: [{'key': 'e0951aaf-faa3-4ebc-96b8-23933343aa0c', 'value': {'title': '2022-09 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB5017396)', 'kb': ['5017396'], 'categories': ['Security Updates', 'Windows Server 2016'], 'id': 'e0951aaf-faa3-4ebc-96b8-23933343aa0c', 'downloaded': True, 'installed': True}}, 
+                       {'key': 'e0951aaf-faa3-4ec-96b8-2393334dye38', 'value': {'title': '2022-09 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB5017396)', 'kb': ['5017395'], 'categories': ['Security Updates', 'Windows Server 2016'], 'id': 'e0951aaf-faa3-4ec-96b8-2393334dye38', 'downloaded': True, 'installed': True}},
+                       {'key': 'e0951aaf-faa3-4ebc-dsd8-23933343deu', 'value': {'title': '2022-09 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB5017396)', 'kb': ['5017393'], 'categories': ['Security Updates', 'Windows Server 2016'], 'id': 'e0951aaf-faa3-4ebc-dsd8-23933343deu', 'downloaded': True, 'installed': False}},
+                       {'key': 'e0951aaf-faa3-4ebc-96b8-33dkd8s9da3', 'value': {'title': '2022-09 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB5017396)', 'kb': ['5017334'], 'categories': ['Security Updates', 'Windows Server 2016'], 'id': 'e0951aaf-faa3-4ebc-96b8-33dkd8s9da3', 'downloaded': True, 'installed': True}},
+                       {'key': 'e0951aaf-faa3-4ebc-96b8-23933dsdds3', 'value': {'title': '2022-09 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB5017396)', 'kb': ['5017367'], 'categories': ['Security Updates', 'Windows Server 2016'], 'id': 'e0951aaf-faa3-4ebc-96b8-23933dsdds3', 'downloaded': True, 'installed': True}},
+                       {'key': 'e0951aaf-faa3-4ebc-96b8-23933dssdf3', 'value': {'title': '2022-09 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB5017396)', 'kb': ['5017309'], 'categories': ['Security Updates', 'Windows Server 2016'], 'id': 'e0951aaf-faa3-4ebc-96b8-23933dssdf3', 'downloaded': True, 'installed': False}},
+                       {'key': 'e0951aaf-faa3-4ebc-96b8-2393dssadf3', 'value': {'title': '2022-09 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB5017396)', 'kb': ['5017312'], 'categories': ['Security Updates', 'Windows Server 2016'], 'id': 'e0951aaf-faa3-4ebc-96b8-2393dssadf3', 'downloaded': True, 'installed': True}},
+                       {'key': 'e0951aaf-faa3-4ebc-96b8-23933sd39e3', 'value': {'title': '2022-09 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB5017396)', 'kb': ['5017306'], 'categories': ['Security Updates', 'Windows Server 2016'], 'id': 'e0951aaf-faa3-4ebc-96b8-23933sd39e3', 'downloaded': True, 'installed': False}},
+        ]
+
+        server_list: ['vmeunpapp01', 'vmnepsap01', 'vmenupdb01']
+
+        service_list: [{'key' : 'Symantec Endpoint Protection', 'value' :'started'}, 
+                       {'key' : 'Remote Procedure Call (RPC)', 'value' : 'started'},
+                       {'key' : 'Remote Desktop Services', 'value' : 'started'},
+                       {'key' : 'Print Queue', 'value' : 'not started'}]
+
+
+    - name: Display dict_updates
+      debug:
+        var: dict_updates
+
+    - name: Date and Time
+      set_fact:
+        patch_installation_date_time: "{{ ansible_date_time.date }} {{ ansible_date_time.time }}"
+
+
+    - name: Generate Patching Report in CSV format          # Generate Patching Report in CSV format
+      template:
+        dest: "{{ temp_patching_report_location.path }}"
+        src: patching_report_template_updates.csv.jinja2
+      delegate_to: localhost
+      run_once: true
+      become: false
+      register: patching_report_file_name
+      
+
+    - name: Generate Windows Services Report in CSV format    # Generate Windows Services Report in CSV format
+      template:
+        dest: "{{ temp_windows_services_report_location.path }}"
+        src: windows_services_report_template.csv.jinja2
+      delegate_to: localhost
+      run_once: true
+      become: false
+      register: windows_services_report_file_name
+
+    - name: Run Python Script to Merge CSV Files        # Run Python Script to Merge CSV Files
+      command: python3 scripts/merge_csv_to_excel.py #Code for Specifying Arguments Pending. Args like "{{ temp_patching_report_location.path }}" "{{ temp_windows_services_report_location.path }}" "{{ final_report }}"
+      delegate_to: localhost
+      run_once: true
+      become: false
+      register: merge_csv_files_output
+
+
+    - name: Output of Python Script to Merge CSV Files
+      debug:
+        msg: "{{ merge_csv_files_output.stdout_lines }}"
+      delegate_to: localhost
+      run_once: true
+      become: false

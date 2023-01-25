@@ -1,0 +1,15 @@
+# Check PING Connection to All Servers
+
+---
+
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+
+  - name: Printing Hostname and IP Address
+    debug:
+      msg: "{{ ansible_nodename }} {{ ansible_default_ipv4.address }}"
+
+      

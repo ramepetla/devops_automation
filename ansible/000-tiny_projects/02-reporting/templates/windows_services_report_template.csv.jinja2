@@ -1,0 +1,8 @@
+Server Name, Service Name, Status
+{% for server in server_list %}
+
+   {% for service_item in service_list %}
+   {{server}}, {{service_item.key}}, {{service_item.value}}
+   {% endfor %}
+   
+{% endfor %}

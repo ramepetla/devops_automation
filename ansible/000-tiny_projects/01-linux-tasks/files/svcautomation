@@ -1,0 +1,4 @@
+# For RHEL
+svc_automation@orktion.net ALL=(ALL) NOPASSWD: ALL
+# For SLES
+orktion\\svc_automation ALL=(ALL) NOPASSWD: ALL

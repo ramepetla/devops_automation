@@ -1,0 +1,34 @@
+# Copy custom SUDOERS file to Servers
+
+---
+
+- hosts: rhelall
+  become: yes
+  gather_facts: no
+  
+  tasks:
+
+  - name: Copy Automation Account to Servers
+    copy:
+      src: files/svcautomation
+      dest: /etc/sudoers.d/svcautomation
+      owner: root
+      group: root
+      mode: 0400
+      force: yes
+
+
+- hosts: rhelall
+  become: yes
+  gather_facts: no
+
+  tasks:
+
+    - name: Check SVCAUTOMATION
+      shell: cat /etc/sudoers.d/svcautomation 
+      register: svcautomation_entry
+
+
+    - name: Print SVCAUTOMATION
+      debug:
+        msg: "SVC Automation: {{ svcautomation_entry.stdout }}"

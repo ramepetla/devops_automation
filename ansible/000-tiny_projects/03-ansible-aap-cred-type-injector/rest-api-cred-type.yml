@@ -1,0 +1,10 @@
+---
+
+fields:
+  - id: forti-api-token
+    type: string
+    label: Password
+    secret: true
+required:
+  - forti-api-token
+  -
