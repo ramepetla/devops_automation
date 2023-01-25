@@ -130,3 +130,15 @@ dmypy.json
 
 # Exclude Root Folders
 docker
+
+ansible/000-ansible-collections-modules-info.txt
+ansible/000-configs
+ansible/000-tiny_projects
+ansible/000-hands-on
+ansible/001-ansible-os-hardening-linux
+ansible/002-infoblox-fortigate
+ansible/003-demystifying-aap
+ansible/004-ansible-os-patching-windows
+ansible/005-aap-execution-env
+ansible/007-pfsense
+ansible/008-ansible-python
